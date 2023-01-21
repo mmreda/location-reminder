@@ -1,16 +1,14 @@
 package com.udacity.project4
 
+import android.app.Activity
 import android.app.Application
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.IdlingRegistry
-import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.action.ViewActions.*
-import androidx.test.espresso.assertion.ViewAssertions
 import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.RootMatchers
-import androidx.test.espresso.matcher.ViewMatchers
+import androidx.test.espresso.matcher.RootMatchers.withDecorView
 import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -21,10 +19,11 @@ import com.udacity.project4.locationreminders.data.local.RemindersLocalRepositor
 import com.udacity.project4.locationreminders.reminderslist.RemindersListViewModel
 import com.udacity.project4.locationreminders.savereminder.SaveReminderViewModel
 import com.udacity.project4.util.DataBindingIdlingResource
-import com.udacity.project4.util.EspressoIdlingResource.countingIdlingResource
 import com.udacity.project4.util.monitorActivity
+import com.udacity.project4.utils.EspressoIdlingResource.countingIdlingResource
 import kotlinx.coroutines.runBlocking
-import org.hamcrest.CoreMatchers
+import org.hamcrest.Matchers.`is`
+import org.hamcrest.Matchers.not
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -47,6 +46,13 @@ class RemindersActivityTest :
     private lateinit var viewModel: SaveReminderViewModel
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
+    private fun getActivity(scenario: ActivityScenario<RemindersActivity>): Activity {
+        lateinit var activity: Activity
+        scenario.onActivity {
+            activity = it
+        }
+        return activity
+    }
 
     /**
      * As we use Koin as a Service Locator Library to develop our code, we'll also use Koin to test our code.
@@ -117,10 +123,11 @@ class RemindersActivityTest :
         // THEN - Verify detail screen is contains the expected values
         onView(withText("Reminder to visit pyramids")).check(matches(isDisplayed()))
         onView(withText("Description")).check(matches(isDisplayed()))
-        onView(withText(R.string.reminder_saved)).check(matches(isDisplayed()))
+
+        onView(withText(R.string.reminder_saved)).inRoot(withDecorView(not(`is`(getActivity(scenario).window.decorView))))
+            .check(matches(isDisplayed()))
         scenario.close()
     }
-
 
     @Test
     fun addReminder_errorEmptyTitle() {
