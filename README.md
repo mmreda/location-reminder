@@ -48,3 +48,5 @@ The app follows the MVVM Architecture Pattern and makes use of the following lib
 
 
 ### Udacity Review
+
+![Screenshot6](screenshots/location-reminder-udacity-review.jpg)
